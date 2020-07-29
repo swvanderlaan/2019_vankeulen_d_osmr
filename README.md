@@ -21,13 +21,20 @@ Our study suggests that genetically decreased arterial _OSMR_ expression contrib
 #### Analysis Scripts
 Surely these scripts will not work immediately on your systems, but they may be used and edited for local use.
  
-- *somescript.R*</br>
-[text]
-- *somescript.sh*</br>
-[text]
-- *somescript.pl*</br>
-[text]
-
+- *SNP/lookup.sh*</br>
+Script to lookup variants in GWAS summary statistics. These data are downloaded to our high-performance computing cluster. The scripts works on the our HPC.
+- *SNP/variantlist.txt*</br>
+Variants investigated.
+- *SNP/phenotypes.txt*</br>
+Phenotypes investigated.
+- *SNP/gwastoolkit.conf*</br>
+[**GWASToolKit**](https://github.com/swvanderlaan/GWASToolKit) configuration file.
+- *SNP/covariates.txt*</br>
+Covariates included.
+- *RNAseq/20181211_OSMR_LIFR_RNAseq_analysis.RMD*</br>
+R markdown file for the RNAseq analysis of eQTLs and plaque phenotypes.
+- *RNAseq/20190429_Group_comparisons.html*</br>
+HTML including codes used and results of the RNAseq analysis of eQTLs and plaque phenotypes.
 
 #### Notes
 Scripts will work within the context of a certain Linux environment, for example a CentOS7 system on a SUN Grid Engine background or macOS X Lion+ (version 10.7.[x]+). 

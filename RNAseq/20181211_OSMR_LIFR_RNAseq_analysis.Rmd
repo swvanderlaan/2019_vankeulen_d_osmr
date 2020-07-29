@@ -1,0 +1,378 @@
+---
+title: "RNAseq analysis of OSMR and LIFR"
+author: "Arjan Boltjes"
+date: "11/12/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+```
+
+## Introduction
+
+Request: compare gene expression of two genes - OSMR and LIFR - between plaque stability scores and between genotypes.  
+Variants involved:  
+- rs13168867 associates with OSMR  
+- rs10491509 associates with LIFR
+
+```{r RNAseq_SumExp_script, results = "hide"}
+# Incorporate RNAseq in SummarizedExperiment script
+# Input: RNAseq data
+
+# Set WD to where the RNAseq data is
+setwd("/home/arjan/Cardio/Athero-Express/RNAseq pilot/160223_NS500813_0095_AHT2FKBGXX/")
+
+## Load packages
+# source("https://bioconductor.org/biocLite.R")
+# biocLite("GenomicRanges")
+library(GenomicRanges)
+# biocLite("SummarizedExperiment")
+library(SummarizedExperiment)
+library(tidyverse)
+library(readxl)
+library(haven)
+library(org.Hs.eg.db)
+library(annotables)
+
+# Read files
+# RNAseq counts
+file <- "160223_NS500813_0095_AHT2FKBGXX_readCounts_normalized.txt"
+df <- read_tsv(file)
+df <- dplyr::rename(df, "gene_ensembl" = "X1")
+
+# List of identifiers to change RNAseq ID to UPID
+file2 <- "20180830_AEGS_AExoS_FAM_SAMPLE_FILE_BASE_pilotRNAseqONLY.xlsx"
+rename_key <- read_excel(file2, sheet = 1, range = cell_cols("B:C"))
+
+# Athero-Express
+path <- "/home/arjan/Cardio/Athero-Express/2018-1NEW_AtheroExpressDatabase_ScientificAE_230218.sav"
+ae <- read_sav(path)
+
+# Annotations and tidying
+# Gene symbol - via org.Hs.eg.db
+# columns(org.Hs.eg.db)
+df$symbol <- mapIds(org.Hs.eg.db,
+                    keys = df$gene_ensembl,
+                    column = "SYMBOL",
+                    keytype = "ENSEMBL",
+                    multiVals = "first")
+
+# Chromosome, basepair locations, strand - via annotables
+# Further tidying to match BED-file format needed for QTL-tools or our own database: see in-line comments
+grch37sel <- dplyr::select(grch37, ensgene, chr, start, end, strand)
+
+df %<>% 
+     inner_join(grch37sel, by = c("gene_ensembl" = "ensgene")) %>% 
+     dplyr::select(chr, start, end, gene_ensembl, symbol, strand, starts_with("nsm"), starts_with("sm")) %>%  # order variables
+     dplyr::filter(grepl("^[0-9]{1,2}$|^MT$|^X$|^Y$", chr)) %>% # get rid of rows containing non-standard chromosome names
+     arrange(chr, symbol) %>%
+     mutate(strand = str_replace_all(strand, c("^1$" = "+", "^-1$" = "-"))) %>% # change strand names to "+" and "-" 
+     mutate(chr = str_pad(chr, 2, "left", pad = "0")) %>% # pad chromosome names with a leading zero, if name length is <2
+     dplyr::rename(pid = gene_ensembl, gid = symbol) # rename annotation variables
+
+# remove duplicate ensembl ID's
+df <- df[!duplicated(df$pid),]
+
+# Rename patient variable names to UPID
+names(df) <- str_replace(names(df), "nsm|sm", "")
+
+# Cut up df into 'assay' and 'ranges' part
+counts <- df[,-(1:6)]                             ## assay part
+rowRanges <- GRanges(df$chr,					## construct a GRanges object containing 4 columns (seqnames, ranges, strand, seqinfo) plus a metadata colum (feature_id): this will be the 'rowRanges' bit 
+                     IRanges(df$start, df$end),
+                     strand = df$strand,
+                     feature_id = df$gid) #, df$pid)
+
+# Subset pilot data patients from AE data and add those - including identifier identical to counts column names - to colData df
+ae <- map_df(.x = ae, .f = function(x) {
+     if (class(x) == 'labelled') as_factor(x)
+     else x})
+
+colData <- tibble(study_number = as.double(names(counts)))
+colData <- inner_join(colData, ae, by = c("study_number" = "STUDY_NUMBER"))
+
+(se <- SummarizedExperiment(assays = list(counts = as.matrix(counts)),  ## as.matrix() is important here, to get dimnames the same (?) - see error below if you don't use this
+                           rowRanges = rowRanges, colData = colData)   )
+```
+
+## Vulnerability data
+
+Import data and have a look at the variable names
+```{r import_vulnerability_data, echo=FALSE}
+path1 <- "/home/arjan/Cardio/Athero-Express/RNAseq pilot/OSMR-LIFR (Danielle)/20181129 Merge Chromosome 5 and vulnerability.sav"
+vulnerability <- read_sav(path1)
+
+names(vulnerability) %<>% 
+     tolower %>%
+     print
+```
+
+Select variables and check dataframe
+```{r select_variables}
+vulnerability %<>%
+     mutate_at(vars(c("study_number")), funs(as.numeric)) %>%
+     mutate_at(vars(c("stability", "rs10491509", "rs13168867")), funs(as.factor)) %>%
+     dplyr::select(study_number, rs10491509, rs13168867, stability) %>%
+     print()
+
+vulnerability$stability <- droplevels.factor(vulnerability$stability)
+vulnerability$rs10491509 <- droplevels.factor(vulnerability$rs10491509)
+vulnerability$rs10491509 <- factor(vulnerability$rs10491509, levels = c("GG", "AG", "AA", "00", ""))
+vulnerability$rs13168867 <- droplevels.factor(vulnerability$rs13168867)
+vulnerability$rs13168867 <- factor(vulnerability$rs13168867, levels = c("TT", "CT", "CC", ""))
+```
+
+Take a sneak peak at the distribution of the samples over the different scores and genotypes
+
+Stability:
+```{r stability_table_all}
+table(vulnerability$stability, useNA = "ifany")
+```
+rs10491509 genotype:
+```{r rs10491509_table_all}
+table(vulnerability$rs10491509, useNA = "ifany")
+```
+rs13168867 genotype:
+```{r rs13168867_table_all}
+table(vulnerability$rs13168867, useNA = "ifany")
+```
+
+From these numbers, we can see that all scores and genotypes are represented in the data, and that there are several samples with missing data
+
+# Subset 30 RNAseq patients, select phenotypes and combine with RNAseq data
+The RNAseq data only contains 30 patients. Therefore we subset these 30 patients from the vulnerability data, based on study number.
+
+```{r subset_vulnerability}
+# Subset only patients that are in our pilot RNA-seq data
+colData <- left_join(colData, vulnerability, by = c("study_number" = "study_number"))
+
+colData %<>%
+     dplyr::select(study_number, rs10491509, rs13168867, stability) %>%
+     print()
+
+(se <- SummarizedExperiment(assays = list(counts = as.matrix(counts)),  ## as.matrix() is important here, to get dimnames the same (?) - see error below if you don't use this
+                            rowRanges = rowRanges, colData = colData)   )
+```
+
+If we look at the distribution of this subsetted data over the scores and genotypes, we see the following.
+
+**Figure 1. Distribution of RNAseq samples over the different vulnerability scores**
+```{r subset_vulnerability_histo}
+ggplot(colData, aes(x = stability)) +
+     geom_histogram(stat = "count") + 
+     scale_y_continuous(breaks=seq(0,15,1))
+```
+
+**Figure 2. Distribution of RNAseq samples over rs10491509 genotypes**
+```{r subset_rs10491509_histo}
+ggplot(colData, aes(x = rs10491509)) +
+     geom_histogram(stat = "count") + 
+     scale_y_continuous(breaks=seq(0,15,1))
+```
+
+**Figure 3. Distribution of RNAseq samples over rs13168867 genotypes**
+```{r subset_rs13168867_histo}
+ggplot(colData, aes(x = rs13168867)) +
+     geom_histogram(stat = "count") + 
+     scale_y_continuous(breaks=seq(0,15,1))
+```
+
+When going through these plots, one can immediately see that among our 30 patients of which we have RNAseq data, one is not contained in the vulnerability dataset (NA in all three plots).  
+Furthermore, none of the samples have a stability score of 4. And genotype data is missing for 1-2 people (denominated "" or "00").
+
+# **OSMR expression**
+
+If we then plot our RNAseq data over these three variables we get the following:
+```{r OSMR_code, results = "hide"}
+# Set WD to lookup folder
+setwd("/home/arjan/Cardio/Athero-Express/RNAseq pilot/OSMR-LIFR (Danielle)/")
+
+library(ggplot2)
+library(reshape2)
+ggdf <- data.frame(gene_name = rowRanges(se)$feature_id, assay(se), check.names = FALSE) ## check.names = FALSE is needed to prevent R padding the col names with an X since they're numbers
+ggdf_melt <- melt(ggdf, id.vars = "gene_name", value.name = "expression", variable.name = "patient")
+
+sample_ids <- ggdf_melt$patient
+mm <- match(ggdf_melt$patient, rownames(colData(se)))
+
+## Look up string: fill in
+names(colData(se))[grep("stability", names(colData(se)))]
+names(colData(se))[grep("rs[0-9]+", names(colData(se)))]
+
+## Add traits to df
+## Binary traits
+ggdf_melt$stability <- colData(se)$stability[mm]
+ggdf_melt$rs10491509 <- colData(se)$rs10491509[mm]
+ggdf_melt$rs13168867 <- colData(se)$rs13168867[mm]
+
+## Missing trait info: 
+## FALSE = trait is available for this many patients
+## TRUE = trait is missing in this many patients
+table(is.na(colData(se)$stability))
+table(is.na(colData(se)$rs10491509))
+table(is.na(colData(se)$rs13168867))
+
+# Define gene(s) of interest
+gene1 <- "OSMR"
+
+# Code for function body
+x <- which(ggdf_melt$gene_name == gene1)
+df_sel <- ggdf_melt[x,]
+ggdf_sel <- as.tibble(spread(df_sel, gene_name, expression))
+ggdf_sel$stability <- droplevels.factor(ggdf_sel$stability)
+ggdf_sel$rs10491509 <- droplevels.factor(ggdf_sel$rs10491509)
+# ggdf_sel$rs10491509 <- factor(ggdf_sel$rs10491509, levels = c("GG", "AG", "AA", "00", ""))
+ggdf_sel$rs13168867 <- droplevels.factor(ggdf_sel$rs13168867)
+# ggdf_sel$rs13168867 <- factor(ggdf_sel$rs13168867, levels = c("TT", "CT", "CC", ""))
+```
+
+**Figure 4. Comparing OSMR expression between plaque stability scores**
+```{r OSMR_stability}
+ggplot(ggdf_sel, aes(x = stability, y = OSMR)) +
+     geom_boxplot() +
+     geom_jitter(width = 0.1, shape = 1) +
+     xlab("Plaque stability score") +
+     ylab("OSMR expression")
+```
+
+**Figure 5. Comparing OSMR expression between rs10491509 genotypes**
+```{r OSMR_rs10491509}
+ggplot(ggdf_sel, aes(x = rs10491509, y = OSMR)) +
+     geom_boxplot() +
+     geom_jitter(width = 0.1, shape = 1) +
+     xlab("rs10491509 genotypes") +
+     ylab("OSMR expression")
+```
+
+**Figure 6. Comparing OSMR expression between rs13168867 genotypes**
+```{r OSMR_rs13168867}
+ggplot(ggdf_sel, aes(x = rs13168867, y = OSMR)) +
+     geom_boxplot() +
+     geom_jitter(width = 0.1, shape = 1) +
+     xlab("rs13168867 genotypes") +
+     ylab("OSMR expression")
+```
+
+
+## *Same plots, without NA, 00, and empty:*
+```{r OSMR_remove_NA_0_empty}
+ggdf_sel_stability <- subset(ggdf_sel, !is.na(stability))
+ggdf_sel_rs10491509 <- subset(ggdf_sel, rs10491509 == "AA" | rs10491509 == "AG" | rs10491509 == "GG")
+ggdf_sel_rs13168867 <- subset(ggdf_sel, rs13168867 == "CC" | rs13168867 == "CT" | rs13168867 == "TT")
+```
+
+**Figure 7. Comparing OSMR expression between plaque stability scores**
+```{r OSMR_stability_clean}
+ggplot(ggdf_sel_stability, aes(x = stability, y = OSMR)) +
+     geom_boxplot() +
+     geom_jitter(width = 0.1, shape = 1) +
+     xlab("Plaque stability score") +
+     ylab("OSMR expression")
+```
+
+**Figure 8. Comparing OSMR expression between rs10491509 genotypes**
+```{r OSMR_rs1049150_clean}
+ggplot(ggdf_sel_rs10491509, aes(x = rs10491509, y = OSMR)) +
+     geom_boxplot() +
+     geom_jitter(width = 0.1, shape = 1) +
+     xlab("rs10491509 genotypes") +
+     ylab("OSMR expression")
+```
+
+**Figure 9. Comparing OSMR expression between rs13168867 genotypes**
+```{r OSMR_rs13168867_clean}
+ggplot(ggdf_sel_rs13168867, aes(x = rs13168867, y = OSMR)) +
+     geom_boxplot() +
+     geom_jitter(width = 0.1, shape = 1) +
+     xlab("rs13168867 genotypes") +
+     ylab("OSMR expression")
+```
+
+
+# LIFR expression
+```{r LIFR_code}
+# Define gene(s) of interest
+gene1 <- "LIFR"
+
+# Code for function body
+x <- which(ggdf_melt$gene_name == gene1)
+df_sel <- ggdf_melt[x,]
+ggdf_sel <- as.tibble(spread(df_sel, gene_name, expression))
+ggdf_sel$stability <- droplevels.factor(ggdf_sel$stability)
+ggdf_sel$rs10491509 <- droplevels.factor(ggdf_sel$rs10491509)
+ggdf_sel$rs10491509 <- factor(ggdf_sel$rs10491509, levels = c("GG", "AG", "AA", "00", ""))
+ggdf_sel$rs13168867 <- droplevels.factor(ggdf_sel$rs13168867)
+ggdf_sel$rs13168867 <- factor(ggdf_sel$rs13168867, levels = c("TT", "CT", "CC", ""))
+```
+**Figure 10. Comparing LIFR expression between plaque stability scores**
+```{r LIFR_stability}
+ggplot(ggdf_sel, aes(x = stability, y = LIFR)) +
+     geom_boxplot() +
+     geom_jitter(width = 0.1, shape = 1) +
+     xlab("Plaque stability score") +
+     ylab("LIFR expression")
+```
+
+**Figure 11. Comparing LIFR expression between rs10491509 genotypes**
+```{r LIFR_rs10491509}
+ggplot(ggdf_sel, aes(x = rs10491509, y = LIFR)) +
+     geom_boxplot() +
+     geom_jitter(width = 0.1, shape = 1) +
+     xlab("rs10491509 genotypes") +
+     ylab("LIFR expression")
+```
+
+**Figure 12. Comparing LIFR expression between rs13168867 genotypes**
+```{r LIFR_rs13168867}
+ggplot(ggdf_sel, aes(x = rs13168867, y = LIFR)) +
+     geom_boxplot() +
+     geom_jitter(width = 0.1, shape = 1) +
+     xlab("rs13168867 genotypes") +
+     ylab("LIFR expression")
+```
+
+
+# *Same plots, without NA, 00, and empty:*
+```{r LIFR_remove_NA_0_empty}
+ggdf_sel_stability <- subset(ggdf_sel, !is.na(stability))
+ggdf_sel_rs10491509 <- subset(ggdf_sel, rs10491509 == "AA" | rs10491509 == "AG" | rs10491509 == "GG")
+ggdf_sel_rs13168867 <- subset(ggdf_sel, rs13168867 == "CC" | rs13168867 == "CT" | rs13168867 == "TT")
+```
+
+**Figure 13. Comparing LIFR expression between plaque stability scores**
+```{r LIFR_stability_clean}
+ggplot(ggdf_sel_stability, aes(x = stability, y = LIFR)) +
+     geom_boxplot() +
+     geom_jitter(width = 0.1, shape = 1) +
+     xlab("Plaque stability score") +
+     ylab("LIFR expression")
+```
+
+**Figure 14. Comparing LIFR expression between rs10491509 genotypes**
+```{r LIFR_rs1049150_clean}
+ggplot(ggdf_sel_rs10491509, aes(x = rs10491509, y = LIFR)) +
+     geom_boxplot() +
+     geom_jitter(width = 0.1, shape = 1) +
+     xlab("rs10491509 genotypes") +
+     ylab("LIFR expression")
+```
+
+**Figure 15. Comparing LIFR expression between rs13168867 genotypes**
+```{r LIFR_rs13168867_clean}
+ggplot(ggdf_sel_rs13168867, aes(x = rs13168867, y = LIFR)) +
+     geom_boxplot() +
+     geom_jitter(width = 0.1, shape = 1) +
+     xlab("rs13168867 genotypes") +
+     ylab("LIFR expression")
+```
+
+Above you can find the expression of both OSMR and LIFR over the different stability scores and genotypes.  
+A few notes:  
+- some groups contain few patients/samples  
+- whether certain differences that appear to be there are truly different will have to be checked with differential expression (DE) analysis for these variables.  
+
+DE analysis will have to take place for every different phenotype, comparing gene expression between scores and/or genotypes (depending on phenotype). This will be done for all genes in the dataset, among which will be OSMR and LIFR.
+Right now, I'm setting up this workflow. Let me know whether you think you see differences in the plots above and are interested in analysing gene expression futher in one or more of the phenotypes.  
+
+If you need file versions of any of these figures, let me know which you want, and in what format (I'd suggest pdf or tiff).
