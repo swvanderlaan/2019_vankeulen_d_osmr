@@ -8,14 +8,15 @@ This readme accompanies the paper "Common variats in OSMR contribute to carotid 
 
 #### Abstract
 
-**Background** Oncostatin M (OSM) signaling is implicated in atherosclerosis, however the mechanism remains unclear. We investigated the impact of common genetic variants in _OSM_ and its receptors, _OSMR_ and _LIFR_, on overall plaque vulnerability (based on macrophage, collagen, smooth muscle cell and fat content) and on seven individual atherosclerotic plaque phenotypes (calcification, collagen, atheroma size, macrophages, smooth muscle cells, vessel density and intraplaque hemorrhage).
+**Background and aims**
+Oncostatin M (OSM) signaling is implicated in atherosclerosis, however the mechanism remains unclear. We investigated the impact of common genetic variants in OSM and its receptors, _OSMR_ and _LIFR_, on overall plaque vulnerability, plaque phenotype, intraplaque _OSMR_ and _LIFR_ expression, coronary artery calcification burden and cardiovascular disease susceptibility.
 
-**Methods and results** We queried Genotype-Tissue Expression (GTEx) data and selected one variant, rs13168867 (C allele), that associated with decreased _OSMR_ expression and one variant, rs10491509 (A allele), that associated with increased _LIFR_ expression in arterial tissue. No variant was associated to significantly altered _OSM_ expression.
+**Methods and results**
+We queried Genotype-Tissue Expression data and found rs13168867 (C allele) and rs10491509 (A allele) to be associated with decreased _OSMR_ and increased _LIFR_ expression in arterial tissue respectively. No variant was significantly associated with _OSM_ expression.
+We associated these two variants with plaque characteristics from 1,443 genotyped carotid endarterectomy patients in the Athero-Express Biobank Study. rs13168867 was associated with an increased overall plaque vulnerability (β = 0.118 ± 0.040 s.e., _p_ = 3.00x10<sup>-3</sup>, C allele) and although not significant after correction for multiple testing, it showed strongest associations with intraplaque fat (β = 0.248 ± 0.088 s.e., C allele) and collagen content (β = -0.259 ± 0.095 s.e., C allele). rs13168867 was not associated with intraplaque _OSMR_ expression. Neither was intraplaque _OSMR_ expression associated with plaque vulnerability and no known _OSMR_ eQTLs were associated with coronary artery calcification burden, or cardiovascular disease susceptibility. No associations were found for rs10491509 in the _LIFR_ locus.  
 
-We associated these two variants with plaque characteristics from 1,443 genotyped carotid endarterectomy patients in the Athero-Express Biobank Study. The rs13168867 variant in _OSMR_ was significantly associated with an increased overall plaque vulnerability (β = 0.118 ± s.e. = 0.040, p = 3.00×2−3, C allele). With respect to different plaque phenotypes, this variant showed strongest associations with intraplaque fat (β = 0.248 ± s.e. = 0.088, p = 4.66×2−3, C allele) and collagen content (β = −0.259 ± s.e. = 0.095, p = 6.22×2−3, C allele). No associations were found for rs10491509 in the _LIFR_ locus.
-
-**Conclusion** Our study suggests that genetically decreased arterial _OSMR_ expression, possibly resulting in decreased OSM signaling, contributes to increased carotid plaque vulnerability.
-
+**Conclusions**
+Our study suggests that genetically decreased arterial _OSMR_ expression contributes to increased carotid plaque vulnerability. However, the OSM signaling pathway is unlikely to be causally involved in lifetime cardiovascular disease susceptibility as none of the investigated variants associated with cardiovascular diseases.
 
 #### Analysis Scripts
 Surely these scripts will not work immediately on your systems, but they may be used and edited for local use.
