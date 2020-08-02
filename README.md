@@ -2,7 +2,8 @@ Common variants associated with OSMR expression contribute to carotid plaque vul
 ===========================================================
 
 #### This readme
-This readme accompanies the paper "Common variants associated with OSMR expression contribute to carotid plaque vulnerability, but not to cardiovascular disease in humans." by Van Keulen D. and [Van Keulen D. *et al*. **bioRxiv**](https://doi.org/10.1101/576793).
+This readme accompanies the paper _"Common variants associated with OSMR expression contribute to carotid plaque vulnerability, but not to cardiovascular disease in humans."_ by [Van Keulen D. *et al*. **bioRxiv 2019**](https://doi.org/10.1101/576793).
+
 
 --------------
 
