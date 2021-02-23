@@ -15,17 +15,17 @@ This readme accompanies the paper _"Common variants associated with OSMR express
 Oncostatin M (OSM) signaling is implicated in atherosclerosis, however the mechanism remains unclear. We investigated the impact of common genetic variants in OSM and its receptors, _OSMR_ and _LIFR_, on overall plaque vulnerability, plaque phenotype, intraplaque _OSMR_ and _LIFR_ expression, coronary artery calcification burden and cardiovascular disease susceptibility.
 
 **Methods and results**
-We queried Genotype-Tissue Expression data and found rs13168867 (C allele) and rs10491509 (A allele) to be associated with decreased _OSMR_ and increased _LIFR_ expression in arterial tissue respectively. No variant was significantly associated with _OSM_ expression.
+We queried Genotype-Tissue Expression data and found rs13168867 (C allele) was associated with decreased _OSMR_ expression and rs10491509 (A allele) associated with increased _LIFR_ expression in arterial tissues. No variant was significantly associated with _OSM_ expression.
 We associated these two variants with plaque characteristics from 1,443 genotyped carotid endarterectomy patients in the Athero-Express Biobank Study. rs13168867 was associated with an increased overall plaque vulnerability (β = 0.118 ± 0.040 s.e., _p_ = 3.00x10<sup>-3</sup>, C allele) and although not significant after correction for multiple testing, it showed strongest associations with intraplaque fat (β = 0.248 ± 0.088 s.e., C allele) and collagen content (β = -0.259 ± 0.095 s.e., C allele). rs13168867 was not associated with intraplaque _OSMR_ expression. Neither was intraplaque _OSMR_ expression associated with plaque vulnerability and no known _OSMR_ eQTLs were associated with coronary artery calcification burden, or cardiovascular disease susceptibility. No associations were found for rs10491509 in the _LIFR_ locus.  
 
 **Conclusions**
-Our study suggests that genetically decreased arterial _OSMR_ expression contributes to increased carotid plaque vulnerability. However, the OSM signaling pathway is unlikely to be causally involved in lifetime cardiovascular disease susceptibility as none of the investigated variants associated with cardiovascular diseases.
+Our study suggests that rs1316887 in the _OSMR_ locus is associated with increased plaque vulnerability, but not with with coronary calcification or cardiovascular disease risk. It remains unclear through which precise biological mechanisms OSM signaling exerts its effects on plaque morphology. However, the OSM-OSMR/LIFR pathway is unlikely to be causally involved in lifetime cardiovascular disease susceptibility.
 
 #### Analysis Scripts
 Surely these scripts will not work immediately on your systems, but they may be used and edited for local use.
  
 - *SNP/lookup.sh*</br>
-Script to lookup variants in GWAS summary statistics. These data are downloaded to our high-performance computing cluster. The scripts works on the our HPC.
+Script to lookup variants in GWAS summary statistics. These data are downloaded to our high-performance computing cluster. The scripts works on our HPC.
 - *SNP/variantlist.txt*</br>
 Variants investigated.
 - *SNP/phenotypes.txt*</br>
