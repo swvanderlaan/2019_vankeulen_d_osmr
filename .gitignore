@@ -1,4 +1,25 @@
+# hidden files
+.*
+!.gitignore
+.DS_Store
+
+# vim files
+*~
+# outputs
+*.RData
+*.rds
+*.RDS
+_results/*
+
+# pyton
+venv/
+*.egg-info/*
+__pycache__
+
+# tag files
+tags
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
+
