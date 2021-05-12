@@ -50,6 +50,8 @@ HTML including codes used and results of the RNAseq analysis of eQTLs and plaque
 #### Data
 The data is available through [DataverseNL](https://doi.org/10.34894/0RB5IZ). 
 
+<br>
+
 #### Notes
 Scripts will work within the context of a certain Linux environment, for example a CentOS7 system on a SUN Grid Engine background or macOS X Lion+ (version 10.7.[x]+). 
 
