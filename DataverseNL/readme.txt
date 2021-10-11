@@ -1,17 +1,19 @@
 #README
 author: Sander W. van der Laan | s.w.vanderlaan-2@umcutrecht.nl
-last edit: 2021-05-12
+last edit: 2021-10-11
 
-This folder contains the data as it was shared through dataverseNL.
+This folder contains the data as it was shared through DataverseNL.
 
 
 FILES
-vsd_genes_interest.txt									Matix of gene counts normalized through DESeq2 functiona "VST" (ref: https://rdrr.io/bioc/DESeq2/man/varianceStabilizingTransformation.html)
-metadata_vulnerability.txt								Meta data matching the gene count matrix
-aegs_combo_1kGp3GoNL5_RAW_chr5.OSMR.vcf.gz				VCF file of genotype probabilities (https://en.wikipedia.org/wiki/Variant_Call_Format)
-aegs_combo_1kGp3GoNL5_RAW_chr5.OSMR.sample				OXFORD-style file format of samples in genetic data, matching VCF and .GEN file; note this file is edited to include the STUDY_NUMBERS, see below (https://mathgen.stats.ox.ac.uk/genetics_software/snptest/snptest.html#input_file_formats, https://www.well.ox.ac.uk/~gav/qctool/documentation/sample_file_formats.html)
-aegs_combo_1kGp3GoNL5_RAW_chr5.OSMR.gen					OXFORD-style file format of genetic data, matching VCF and .sample file (https://mathgen.stats.ox.ac.uk/genetics_software/snptest/snptest.html#input_file_formats, https://www.well.ox.ac.uk/~gav/qctool/documentation/genotype_file_formats.html)
-
+vsd_genes_interest.txt												Matix of gene counts normalized through DESeq2 functiona "VST" (ref: https://rdrr.io/bioc/DESeq2/man/varianceStabilizingTransformation.html)
+metadata_vulnerability.txt											Meta data matching the gene count matrix
+aegs_combo_1kGp3GoNL5_RAW_chr5.OSMR.vcf.gz							VCF file of genotype probabilities (https://en.wikipedia.org/wiki/Variant_Call_Format)
+aegs_combo_1kGp3GoNL5_RAW_chr5.OSMR.sample							OXFORD-style file format of samples in genetic data, matching VCF and .GEN file; note this file is edited to include the STUDY_NUMBERS, see below (https://mathgen.stats.ox.ac.uk/genetics_software/snptest/snptest.html#input_file_formats, https://www.well.ox.ac.uk/~gav/qctool/documentation/sample_file_formats.html)
+aegs_combo_1kGp3GoNL5_RAW_chr5.OSMR.gen								OXFORD-style file format of genetic data, matching VCF and .sample file (https://mathgen.stats.ox.ac.uk/genetics_software/snptest/snptest.html#input_file_formats, https://www.well.ox.ac.uk/~gav/qctool/documentation/genotype_file_formats.html)
+20020410_Approval_Protocol_TME_Athero-Express_Biobank_Study.pdf		METC Approval of the Athero-Express Biobank Study
+20211007_DMP_Athero-Express_Biobank_Study.pdf						DMP of the Athero-Express Biobank Study
+Athero-Express_Biobank_Study_IC_versie_4.doc						Example Informed Consent of the Athero-Express Biobank Study
 
 The sample-file was edited to include the STUDY_NUMBERS and also stored in 
 'aegs_combo_1kGp3GoNL5_RAW_chr5.OSMR.xlsx'; the matching was done based on 

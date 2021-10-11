@@ -21,8 +21,11 @@ tags
 .Ruserdata
 data
 CROSSTRAITS
-dataverse/aegs_combo_1kGp3GoNL5_RAW_chr5.OSMR.gen
-dataverse/aegs_combo_1kGp3GoNL5_RAW_chr5.OSMR.sample
-dataverse/aegs_combo_1kGp3GoNL5_RAW_chr5.OSMR.vcf.gz
-dataverse/metadata_vulnerability.txt
-dataverse/vsd_genes_interest.txt
+DataverseNL/aegs_combo_1kGp3GoNL5_RAW_chr5.OSMR.gen
+DataverseNL/aegs_combo_1kGp3GoNL5_RAW_chr5.OSMR.sample
+DataverseNL/aegs_combo_1kGp3GoNL5_RAW_chr5.OSMR.vcf.gz
+DataverseNL/metadata_vulnerability.txt
+DataverseNL/vsd_genes_interest.txt
+DataverseNL/20020410_Approval_Protocol_TME_Athero-Express_Biobank_Study.pdf
+DataverseNL/20211007_DMP_Athero-Express_Biobank_Study.pdf
+DataverseNL/Athero-Express_Biobank_Study_IC_versie_4.doc
